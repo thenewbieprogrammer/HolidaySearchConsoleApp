@@ -62,4 +62,23 @@ public class HolidaySearchTests
         Assert.Equal(7, result.First().Flight.Id);
         Assert.Equal(6, result.First().Hotel.Id);
     }
+    
+    [Fact]
+
+    public void HolidaySearch_GivenInvalidCriteria_ReturnsNull()
+    {
+        var criteria = new HolidaySearchCriteria
+        {
+            DepartingFrom = "XYZ",
+            TravelingTo = "T",
+            DepartureDate = new DateTime(2023, 7, 1),
+            Duration = 7
+        };
+        var search = new HolidaySearch(criteria);
+        
+        var result = search.BestDeal;
+
+        Assert.Empty(result);
+    }
+
 }
