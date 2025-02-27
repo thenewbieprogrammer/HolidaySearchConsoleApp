@@ -43,4 +43,23 @@ public class HolidaySearchTests
         Assert.Equal(6, result.First().Flight.Id);
         Assert.Equal(5, result.First().Hotel.Id);
     }
+    
+    [Fact]
+    public void HolidaySearch_GivenCustomerCriteria3_ReturnFlight7AndHotel6()
+    {
+        var criteria = new HolidaySearchCriteria
+        {
+            DepartingFrom = "Any Airport",
+            TravelingTo = "LPA",
+            DepartureDate = new DateTime(2022, 11, 10),
+            Duration = 14
+        };
+        var search = new HolidaySearch(criteria);
+        
+        var result = search.BestDeal;
+
+        Assert.NotNull(result);
+        Assert.Equal(7, result.First().Flight.Id);
+        Assert.Equal(6, result.First().Hotel.Id);
+    }
 }
