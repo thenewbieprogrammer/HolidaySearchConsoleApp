@@ -23,6 +23,5 @@ public class HolidaySearchTests
         Assert.NotNull(result);
         Assert.Equal(2, result.Flight.Id);
         Assert.Equal(9, result.Hotel.Id);
-
     }
 }

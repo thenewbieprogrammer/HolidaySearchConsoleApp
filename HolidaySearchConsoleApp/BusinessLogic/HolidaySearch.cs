@@ -17,9 +17,60 @@ public class HolidaySearch
         BestDeal = SearchBestDeal(searchCriteria);
     }
 
-    private HolidayPackage SearchBestDeal(HolidaySearchCriteria searchCriteria)
+    private HolidayPackage SearchBestDeal(HolidaySearchCriteria criteria)
     {
-        throw new NotImplementedException();
+        List<string> departingAirports;
+
+        if (criteria.DepartingFrom.Equals("Any Airport", StringComparison.OrdinalIgnoreCase))
+        {
+            departingAirports = flights.Select(f => f.From).Distinct().ToList();
+        }
+        else if (criteria.DepartingFrom.Equals("Any London Airport", StringComparison.OrdinalIgnoreCase))
+        {
+            departingAirports = new List<string> { "LGW", "LTN" };
+        }
+        else
+        {
+            departingAirports = new List<string> { criteria.DepartingFrom };
+        }
+
+
+        Flight bestFlight = null;
+
+        foreach (var flight in flights)
+        {
+            if (departingAirports.Contains(flight.From, StringComparer.OrdinalIgnoreCase) &&
+                flight.To.Equals(criteria.TravelingTo, StringComparison.OrdinalIgnoreCase) &&
+                flight.DepartureDate == criteria.DepartureDate)
+            {
+                if (bestFlight == null || flight.Price < bestFlight.Price)
+                {
+                    bestFlight = flight;
+                }
+            }
+        }
+
+        Hotel bestHotel = null;
+        foreach (var hotel in hotels)
+        {
+            if (hotel.ArrivalDate == criteria.DepartureDate && hotel.Nights == criteria.Duration &&
+                hotel.LocalAirports.Any(a => a.Equals(criteria.TravelingTo, StringComparison.OrdinalIgnoreCase)))
+            {
+                var hotelCost = hotel.PricePerNight * hotel.Nights;
+                if (bestHotel == null || hotelCost < bestHotel.PricePerNight * bestHotel.Nights)
+                {
+                    bestHotel = hotel;
+                }
+                
+            }
+        }
+
+        if (bestFlight == null || bestHotel == null)
+        {
+            return null;
+        }
+
+        return new HolidayPackage { Flight = bestFlight, Hotel = bestHotel };    
     }
 
     private List<Hotel> LoadHotels()

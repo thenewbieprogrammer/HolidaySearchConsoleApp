@@ -1,0 +1,6 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=6c75d9aa_002Db648_002D4507_002D95c9_002Da92ac9888596/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="HolidaySearch_GivenCustomerCriteria1_ReturnFlight2AndHotel9" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;xUnit::45E45A19-6968-4D6C-951C-3A8C3E49A804::net9.0::HolidaySearchConsoleApp.Tests.HolidaySearchTests.HolidaySearch_GivenCustomerCriteria1_ReturnFlight2AndHotel9&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
+&lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
