@@ -8,7 +8,7 @@ public class HolidaySearch
 {
     private readonly List<Flight> flights;
     private readonly List<Hotel> hotels;
-    public HolidayPackage BestDeal { get; private set; }
+    public List<HolidayPackage> BestDeal { get; private set; }
     
     public HolidaySearch(HolidaySearchCriteria searchCriteria)
     {
@@ -17,10 +17,9 @@ public class HolidaySearch
         BestDeal = SearchBestDeal(searchCriteria);
     }
 
-    private HolidayPackage SearchBestDeal(HolidaySearchCriteria criteria)
+    private List<HolidayPackage> SearchBestDeal(HolidaySearchCriteria criteria)
     {
         List<string> departingAirports;
-
         if (criteria.DepartingFrom.Equals("Any Airport", StringComparison.OrdinalIgnoreCase))
         {
             departingAirports = flights.Select(f => f.From).Distinct().ToList();
@@ -34,64 +33,26 @@ public class HolidaySearch
             departingAirports = new List<string> { criteria.DepartingFrom };
         }
 
+        var matchingFlights = flights.Where(f =>
+            departingAirports.Contains(f.From, StringComparer.OrdinalIgnoreCase) &&
+            f.To.Equals(criteria.TravelingTo, StringComparison.OrdinalIgnoreCase) &&
+            f.DepartureDate == criteria.DepartureDate
+        ).ToList();
 
-        Flight bestFlight = null;
+        var matchingHotels = hotels.Where(h =>
+            h.ArrivalDate == criteria.DepartureDate &&
+            h.Nights == criteria.Duration &&
+            h.LocalAirports.Any(a => a.Equals(criteria.TravelingTo, StringComparison.OrdinalIgnoreCase))
+        ).ToList();
 
-        foreach (var flight in flights)
-        {
-            if (departingAirports.Contains(flight.From, StringComparer.OrdinalIgnoreCase) &&
-                flight.To.Equals(criteria.TravelingTo, StringComparison.OrdinalIgnoreCase) &&
-                flight.DepartureDate == criteria.DepartureDate)
-            {
-                if (bestFlight == null || flight.Price < bestFlight.Price)
-                {
-                    bestFlight = flight;
-                }
-            }
-        }
+        var packages = (from flight in matchingFlights
+                from hotel in matchingHotels
+                select new HolidayPackage { Flight = flight, Hotel = hotel })
+            .ToList();
 
-        Hotel bestHotel = null;
-        foreach (var hotel in hotels)
-        {
-            if (hotel.ArrivalDate == criteria.DepartureDate && hotel.Nights == criteria.Duration &&
-                hotel.LocalAirports.Any(a => a.Equals(criteria.TravelingTo, StringComparison.OrdinalIgnoreCase)))
-            {
-                var hotelCost = hotel.PricePerNight * hotel.Nights;
-                if (bestHotel == null || hotelCost < bestHotel.PricePerNight * bestHotel.Nights)
-                {
-                    bestHotel = hotel;
-                }
-                
-            }
-        }
+        var orderedPackages = packages.OrderBy(p => p.TotalPrice).ToList();
 
-        if (bestFlight == null || bestHotel == null)
-        {
-            return null;
-        }
-
-        return new HolidayPackage { Flight = bestFlight, Hotel = bestHotel };    
-    }
-
-    private List<Hotel> LoadHotels()
-    {
-        string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "Hotels.json");
-        if (!File.Exists(filePath))
-        {
-            throw new FileNotFoundException("Hotels data file not found.", filePath);
-        }
-
-        string hotelsJson = File.ReadAllText(filePath);
-
-        var jsonSerializeSettings = new JsonSerializerSettings
-        {
-            DateFormatString = "yyyy-MM-dd",
-            ContractResolver = new DefaultContractResolver
-            {
-                NamingStrategy = new SnakeCaseNamingStrategy()
-            }
-        };
-        return JsonConvert.DeserializeObject<List<Hotel>>(hotelsJson, jsonSerializeSettings);
+        return orderedPackages;
     }
 
     private List<Flight> LoadFlights()
@@ -114,4 +75,27 @@ public class HolidaySearch
         
         return JsonConvert.DeserializeObject<List<Flight>>(flightsJson, jsonSerializeSettings);
     }
+    
+    private List<Hotel> LoadHotels()
+    {
+        string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "Hotels.json");
+        if (!File.Exists(filePath))
+        {
+            throw new FileNotFoundException("Hotels data file not found.", filePath);
+        }
+
+        string hotelsJson = File.ReadAllText(filePath);
+
+        var jsonSerializeSettings = new JsonSerializerSettings
+        {
+            DateFormatString = "yyyy-MM-dd",
+            ContractResolver = new DefaultContractResolver
+            {
+                NamingStrategy = new SnakeCaseNamingStrategy()
+            }
+        };
+        return JsonConvert.DeserializeObject<List<Hotel>>(hotelsJson, jsonSerializeSettings);
+        
+    }
+
 }
