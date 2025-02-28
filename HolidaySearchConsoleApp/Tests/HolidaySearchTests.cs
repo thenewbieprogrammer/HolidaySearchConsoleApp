@@ -80,5 +80,30 @@ public class HolidaySearchTests
 
         Assert.Empty(result);
     }
+    
+    [Fact]
+    public void HolidaySearch_Results_AreOrderedByTotalPrice()
+    {
+
+        var criteria = new HolidaySearchCriteria
+        {
+            DepartingFrom = "Any London Airport",
+            TravelingTo = "PMI",
+            DepartureDate = new DateTime(2023, 6, 15),
+            Duration = 10
+        };
+
+        // Act: Execute the holiday search.
+        var search = new HolidaySearch(criteria);
+        var results = search.BestDeal;
+
+        Assert.NotNull(results);
+        Assert.True(results.Count > 1, "There should be multiple packages for ordering by Total Price.");
+        for (int i = 1; i < results.Count; i++)
+        {
+            Assert.True(results[i].TotalPrice >= results[i - 1].TotalPrice,
+                $"Package at index {i} should have a total price greater than or equal to compared to index {i - 1}");
+        }
+    }
 
 }
