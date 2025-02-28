@@ -93,7 +93,6 @@ public class HolidaySearchTests
             Duration = 10
         };
 
-        // Act: Execute the holiday search.
         var search = new HolidaySearch(criteria);
         var results = search.BestDeal;
 
